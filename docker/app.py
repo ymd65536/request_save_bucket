@@ -1,5 +1,6 @@
 import os
 import rq_save_obj.gcs as gcs
+import gemini_provision.image_to_text as image_to_text
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -15,6 +16,18 @@ def get_img_name():
     else:
         res = gcs.save_obj(download_url)
         return res
+
+
+@app.route("/img/provison", methods=["GET"])
+def gemini_pro_vision():
+    req = request.args
+    year = req.get("year")
+    month = req.get("month")
+    img_name = req.get("img_name")
+
+    gcs_file_path = f"gs://{year}/{month}/{img_name}"
+    res = image_to_text.get_text(gcs_file_path)
+    return res
 
 
 @app.route("/callback", methods=['POST'])
